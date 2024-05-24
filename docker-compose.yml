@@ -1,0 +1,39 @@
+version: '3.7'
+
+services:
+  neo4j:
+    image: neo4j:5.16.0
+    container_name: neo4j
+    volumes:
+      - $HOME/erkg_data/testing:/data
+      - ./data:/var/lib/neo4j/import
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      - NEO4J_ACCEPT_LICENSE_AGREEMENT=yes
+      - NEO4J_AUTH=neo4j/i_love_graphs123
+      - NEO4J_PLUGINS=["apoc", "graph-data-science"]
+      - apoc.import.file.enabled=true
+      - NEO4J_server_memory_pagecache_size=4G
+      - NEO4j_server_memory_heap_initial__size=4G
+      - NEO4J_server_memory_heap_max__size=8G
+      - apoc.export.file.enabled=true
+    networks:
+      - erkg_net
+  
+  jupyterlab:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./notebooks:/home/jovyan/work
+    links:
+      - neo4j
+    networks:
+      - erkg_net
+
+networks:
+  erkg_net:  
