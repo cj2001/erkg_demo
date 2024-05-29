@@ -1,8 +1,21 @@
 version: '3.7'
 
 services:
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./portainer-data:/data
+    ports:
+      - "9443:9443"
+      - "8000:8000"
+  
   neo4j_erkg:
-    image: neo4j:5.16.0
+    image: neo4j:5.17.0
     container_name: neo4j_erkg
     volumes:
       - $HOME/erkg_data/testing:/data
@@ -20,7 +33,7 @@ services:
       - NEO4J_server_memory_heap_max__size=8G
       - apoc.export.file.enabled=true
     networks:
-      - erkg_net
+      - senzing
   
   jupyterlab_erkg:
     build:
@@ -33,7 +46,33 @@ services:
     links:
       - neo4j_erkg
     networks:
-      - erkg_net
+      - senzing
+
+  postgres:
+    image: postgres
+    container_name: postgres_container
+    volumes:
+      - $HOME/io_pg_test_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: letmein
+      POSTGRES_DB: G2
+    ports:
+      - "5432:5432"
+    networks:
+      - senzing
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: letmein
+    networks:
+      - senzing
 
 networks:
-  erkg_net:  
+  senzing:
+    driver: bridge
