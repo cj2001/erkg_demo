@@ -32,3 +32,4 @@ docker-compose up
 We will then run Senzing in its own container.  It is highly recommended you check out the [Senzing Docker Quickstart Guide](https://docs.senzing.com/quickstart/quickstart_docker/) for information on how to do that.  I also go through this in some detail in the blog post.
 
 
+more
